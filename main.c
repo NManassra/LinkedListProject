@@ -1,11 +1,16 @@
 #include <stdio.h>
 #include <stdlib.h>
+/// Name : Noura Awni Manassra
+/// ID   : 1212359
+/// Instructor : Anas Arram
+/// Section : 5
 typedef struct node
 {
     int data;
     struct node *next;
     struct node *prev; //since it's double linked list
 } Node;
+struct node* createNode(int data);
 Node *createList(FILE *ptr);
 int isLast (struct node* P,struct node* L );
 struct node* findPrevious (int x, struct node* L );
@@ -30,6 +35,12 @@ struct node* division(struct node* ll1, struct node* ll2);
 struct node* MainLinked (int x,struct node* ll1,struct node* ll2,struct node* ll3,struct node* ll4,struct node* ll5 );
 void printLinkedListToFile(struct node* head, const char* file_name);
 
+struct node* createNode(int data) {
+    struct node* newNode = (struct node*)malloc(sizeof(struct node));
+    newNode->data = data;
+    newNode->next = NULL;
+    return newNode;
+}
 Node *createList(FILE *ptr)   // since all the linked lists we need we gonna take them from the file{
 {
     char numbers[1000];// here we gonna store the numbers as a string and then, convet them into numbers
@@ -621,18 +632,11 @@ struct node*  mult(struct node* ll1, struct node* ll2)
         // Add extra zeros to l1 to make it the same length as l2
         l1 = extraZeros(l1, length2 - length1);
     }
-
     struct node* result = makeEmpty(NULL);
-    result->data = 0;
+    result->data=0;
     if (length1 == 1 && length2==1)
     {
-        int multuu = l1->data*l2->data;
-        result->data = multuu;
-        return result;
-    }
-    if (length2 == 1 && length1==1)
-    {
-        int multuu = l1->data*l2->data;
+        int multuu = ll1->data*ll2->data;
         result->data = multuu;
         return result;
     }
@@ -649,37 +653,37 @@ struct node*  mult(struct node* ll1, struct node* ll2)
     Delete(&l2);
     insertAtEnd(v2, l2);
     struct node* temp = makeEmpty(NULL);
-    if (length2 > length1)
+     if (length1 > length2)
     {
-        temp = l1;
-        l1=l2;
-        l2 = temp;
+        temp = copyList(l2);
+        l2=copyList(l1);
+        l1 = copyList(temp);
+        int zz = length1;
+        length1 = length2;
+        length2 = zz;
     }
-    int yyy = length2;
-    length2=length1;
-    length1 = yyy;
-
     struct node* resultpro = makeEmpty(NULL);
     resultpro->data = 0;
     resultpro=extraZeros(resultpro,length1+length2-1);
     struct node* ll2ptr = l2;
     struct node* resptr2 = result;
     struct node* ll1ptr = l1;
-    int doublee = 1;
+   // int doublee = 1;
     // Multiply each Node of the second list with the first
     int x = length1+1;
     int dbl=0;
     for(int i=0; i<length2; i++)
     {
-        for (int i=0; i<dbl-1; i++)
-        {
-            insertAtEnd(0,result);
-        }
         int carry = 0;
         // Each time we start from the next Node from which we started last time
         ll1ptr = l1;
+          for (int k=0; k<dbl-1; k++)
+        {
+            insertAtEnd(0,result);
+        }
         for(int j=0; j<length1; j++)
         {
+
             int yy = length1;
             int mul = ll1ptr->data * ll2ptr->data + carry;
             // Now the resultant Node itself can have more than 1 digit
@@ -718,16 +722,18 @@ struct node*  mult(struct node* ll1, struct node* ll2)
             {
                 while (resultpro->data == 0)
                 {
-                    Delete(resultpro);
+                   // Delete(&resultpro);
                     resultpro=resultpro->next;
+
                 }
                 if ((l1flag == 0 && l2flag ==0) || (l2flag==1 && l1flag==1))
                     return resultpro ;
                 if (l1flag == 1 || l2flag == 1)
                     resultpro->data=-resultpro->data;
+
                 return resultpro;
             }
-            resultpro->data = 0;
+           // resultpro->data = 0;
             ll2ptr = ll2ptr->next;
         }
         if (i<length2-1)
@@ -735,11 +741,11 @@ struct node*  mult(struct node* ll1, struct node* ll2)
             result = makeEmpty(result);
         }
     }
-    while (resultpro->data == 0)
-    {
-        Delete(resultpro);
-        resultpro=resultpro->next;
-    }
+//    while (resultpro->data == 0)
+//    {
+//        Delete(&resultpro);
+//        resultpro=resultpro->next;
+//    }
     if ((l1flag == 0 && l2flag ==0) || (l2flag==1 && l1flag==1))
         return resultpro ;
     if (l1flag == 1 || l2flag == 1)
@@ -758,41 +764,86 @@ struct node* RemoveFirstDigit(struct node* head)
 }
 struct node* division(struct node* ll1, struct node* ll2)
 {
-    struct node* l1 = makeEmpty(NULL);
-    struct node* l2 = makeEmpty(NULL);
-    if (ll2 == NULL || ll2->data == 0 || ll1==NULL ) {
-        printf ("Implssible!! you can't divide over nothing or over zero!!\n");
+    if (ll2 == NULL || ll2->data == 0 || ll1 == NULL)
+    {
+        printf("Impossible!! You can't divide by nothing or by zero!!\n");
         return NULL;
     }
-     if (ll2->data == 0 ) {
-         printf("0\n");
-     return NULL;
-     }
+    struct node* l1 = copyList(ll1);
+    struct node* l2 = copyList(ll2);
+    getAbsolute(l1);
+    getAbsolute(l2);
     struct node* result = makeEmpty(NULL);
-    result -> data =0;
-    long long int temp1 =0;//put the div at it
-    long long int temp2 =0; // put mult
-    long long int temp3 =0; // put mult
     struct node* temp = makeEmpty(NULL);
-    temp -> data =0;
-    l1 = copyList(ll1);
-    l2 = copyList(ll2);
+    struct node* nextDigit = makeEmpty(NULL);
+    struct node* l1temp = copyList(l1);
+    result->data = 0;
+    nextDigit->data = 0;
+    temp->data = l1temp->data;
     int l1flag = 0, l2flag = 0;
     if (ll1->data < 0) l1flag = 1;
     if (ll2->data < 0) l2flag = 1;
-    int bigger = compareLists(l1,l2);
-    if (bigger == 0) {printf("1\n"); return NULL;}
-    if (bigger == -1 ){printf("The second linked list greater than the first one so the answer is 0\n"); return NULL;}
-    while(compareLists(l1,l2)==1){
-        if (l1->data > l2){
-                temp1 = l1->data / l2->data;
-                insertAtEnd(temp1,result);
-                temp2 = temp1 * l2->data ;
-                temp3 = l1->data - temp2;
-                insertAtEnd(temp3,temp);
-        }
+
+    if (compareLists(l1, l2) == 0)
+    {
+        insertAtEnd(1,result);
+        return result;
     }
-};
+    if (compareLists(l1, l2) == -1)
+    {
+        printf("The second linked list is greater than the first one, so the answer is 0\n");
+        return NULL;
+    }
+
+    struct node* l2copy = copyList(l2);
+
+    int counter = 0;
+    while (1)
+    {
+
+        struct node* temp22 = makeEmpty(NULL);
+        struct node* temp33 = makeEmpty(NULL);
+        struct node* counterr = makeEmpty(NULL);
+        temp22->data = 0;
+        temp33->data = 0;
+        counterr->data = 0;
+        int gg=0;
+        while (compareLists(temp, l2) <= 0 && l1temp->next != NULL)
+        {
+            ++gg;
+            l1temp = l1temp->next;
+            insertAtEnd(l1temp->data, temp);
+            if (gg>1)insertAtEnd(0,result);
+        }
+        struct node* lasttemp = copyList(temp);
+        counter = 0;
+        while (compareLists(temp, l2) == 1)
+        {
+            temp = sub(temp, l2);
+            counter++;
+            while (temp->data == 0) temp = temp->next;
+        }
+        insertAtEnd(counter, result);
+        insertAtEnd(counter, counterr);
+        temp22 = mult(counterr, l2);
+        temp33 = sub(lasttemp , temp22);
+        nextDigit = copyList(temp33);
+        temp = copyList(nextDigit);
+        if (isLast(l1temp,l1temp)) break;
+    }
+
+    while (result->data == 0) result = result->next;
+    if ((l1flag == 0 && l2flag == 0) || (l2flag == 1 && l1flag == 1))
+        return result;
+    if (l1flag == 1 || l2flag == 1)
+    {
+         result->data = -1* result->data ;
+         return result;
+    }
+
+    return result;
+}
+
 struct node* MainLinked (int x,struct node* ll1,struct node* ll2,struct node* ll3,struct node* ll4,struct node* ll5 )
 {
 if (x==1) return ll1;
@@ -817,7 +868,6 @@ void printLinkedListToFile(struct node* head, const char* file_name)
 
     fclose(file);
 }
-
 int main()
 {
     FILE *ptr = fopen("input.txt", "r"); // ptr gonna point to the file
@@ -883,8 +933,8 @@ int main()
             printf("Choose the operation you want to perform:\n");
             printf("1. Addition  + \n");
             printf("2. Multiplication  * \n");
-            printf("3. Division  / \n");
-            printf("4. Subtraction  - \n");
+            printf("3. Subtraction  - \n");
+            printf("4. Division  /  \n");
             scanf("%d", &z);
             switch (z)
             {
@@ -901,17 +951,18 @@ int main()
                 flag = 2;
                 break;
             case 3:
-                divi = division(temp1, temp2);
-                printf("Div: ");
-                printList(divi);
-                flag = 3;
-                break;
-            case 4:
                 subList = sub(temp1, temp2);
                 printf("Sub: ");
-                if (subList== NULL) printf ("0");
+                if (subList== NULL) printf ("0\n");
                 else printList(subList);
                 flag = 4;
+                break;
+            case 4:
+                divi = division(temp1, temp2);
+                printf("Div: ");
+                if (divi== NULL) printf ("0\n");
+                else printList(divi);
+                flag = 3;
                 break;
             }
         }
@@ -921,11 +972,11 @@ int main()
                 printLinkedListToFile(sumList,"output.txt");
             else if (z == 2)
                 printLinkedListToFile(multi,"output.txt");
-            else if (z== 3)
-                printLinkedListToFile(divi,"output.txt");
-            else if (z == 4)
+            else if (z == 3)
                 printLinkedListToFile(subList,"output.txt");
-                printf("done");
+            else if (z == 4)
+                printLinkedListToFile(divi,"output.txt");
+                printf("done\n");
            //     continue;
         }
         else if (b == 4)
